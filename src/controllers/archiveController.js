@@ -21,7 +21,7 @@ exports.getAll = async (req, res, next) => {
 exports.getById = async (req, res, next) => {
   try {
     const data = await archiveService.getById(req.params.id);
-    if (!data) return res.status(404).json({ error: 'Not found' });
+    if (!data) return res.status(404).json({ error: 'Non trouvé' });
     // Map description -> path
     const mapped = { ...data, path: data.description };
     delete mapped.description;

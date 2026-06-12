@@ -10,14 +10,14 @@ const config = require('../config');
 function verifyToken(req, res, next) {
   const token = req.cookies?.token;
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({ error: 'Aucun token fourni' });
   }
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
     req.userId = decoded.id; // expose user id for controllers
     next();
   } catch (err) {
-    return res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({ error: 'Token invalide' });
   }
 }
 

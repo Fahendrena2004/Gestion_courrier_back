@@ -27,7 +27,7 @@ const paginate = require('../middleware/pagination');
  *               items:
  *                 $ref: '#/components/schemas/Archive'
  */
-router.get('/', paginate, archiveController.getAll);
+router.get('/', authenticate, paginate, archiveController.getAll);
 
 /**
  * @swagger
@@ -55,7 +55,7 @@ router.get('/', paginate, archiveController.getAll);
  *       404:
  *         description: Archive not found
  */
-router.get('/:id', archiveController.getById);
+router.get('/:id', authenticate, archiveController.getById);
 
 /**
  * @swagger

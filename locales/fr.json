@@ -1,0 +1,21 @@
+{
+  "Email and password required": "Email et mot de passe requis",
+  "Invalid credentials": "Identifiants invalides",
+  "Logged in": "Connecté",
+  "Logged out": "Déconnecté",
+  "All fields required": "Tous les champs sont obligatoires",
+  "User not found": "Utilisateur non trouvé",
+  "Email already exists": "Email déjà utilisé",
+  "Password must be at least 8 characters": "Le mot de passe doit contenir au moins 8 caractères",
+  "Server error": "Erreur du serveur",
+  "Access denied": "Accès refusé",
+  "Error": "Erreur",
+  "Message": "Message",
+  "Login": "Connexion",
+  "Logout": "Déconnexion",
+  "Register": "Inscription",
+  "Username": "Nom d'utilisateur",
+  "Password": "Mot de passe",
+  "Email": "Email",
+  "Submit": "Envoyer"
+}

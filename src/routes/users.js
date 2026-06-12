@@ -64,7 +64,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
   const { id } = req.params;
   try {
     const [rows] = await db.query('SELECT id, username, email FROM users WHERE id = ?', [id]);
-    if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    if (rows.length === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
     res.json(rows[0]);
   } catch (err) {
     next(err);
@@ -97,7 +97,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
   const { username, email, password } = req.body;
-  if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
+  if (!username || !email || !password) return res.status(400).json({ error: 'Tous les champs sont obligatoires' });
   try {
     const hash = await bcrypt.hash(password, 10);
     const [result] = await db.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash]);
@@ -138,7 +138,7 @@ router.post('/', async (req, res, next) => {
 router.put('/:id', authenticate, async (req, res, next) => {
   const { id } = req.params;
   const { username, email, password } = req.body;
-  if (!username && !email && !password) return res.status(400).json({ error: 'At least one field required' });
+  if (!username && !email && !password) return res.status(400).json({ error: 'Au moins un champ est requis' });
   try {
     const fields = [];
     const values = [];

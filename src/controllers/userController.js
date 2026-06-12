@@ -14,7 +14,7 @@ exports.getAll = async (req, res, next) => {
 exports.getById = async (req, res, next) => {
   try {
     const row = await userService.getById(req.params.id);
-    if (!row) return res.status(404).json({ error: 'Not found' });
+    if (!row) return res.status(404).json({ error: 'Non trouvé' });
     res.json(row);
   } catch (err) {
     next(err);

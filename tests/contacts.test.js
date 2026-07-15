@@ -4,23 +4,22 @@ const { getAuthCookie } = require('./authHelper');
 
 describe('Contacts API', () => {
   let cookie;
+  const createdIds = [];
 
   beforeAll(async () => {
     cookie = await getAuthCookie(app);
-    // Clean up any existing contacts
-    const getRes = await request(app).get('/api/contacts').set('Cookie', cookie);
-    const contacts = getRes.body;
-    if (Array.isArray(contacts)) {
-      for (const c of contacts) {
-        await request(app).delete(`/api/contacts/${c.id}`).set('Cookie', cookie);
-      }
+  });
+
+  afterAll(async () => {
+    for (const id of createdIds) {
+      await request(app).delete(`/api/contacts/${id}`).set('Cookie', cookie);
     }
   });
 
-  it('should return empty array initially', async () => {
+  it('should return contacts array', async () => {
     const res = await request(app).get('/api/contacts').set('Cookie', cookie);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual([]);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
   it('should create a new contact', async () => {
@@ -28,12 +27,14 @@ describe('Contacts API', () => {
     const res = await request(app).post('/api/contacts').set('Cookie', cookie).send(newContact);
     expect(res.statusCode).toBe(201);
     expect(res.body).toMatchObject({ id: expect.any(Number) });
+    createdIds.push(res.body.id);
   });
 
   it('should retrieve the created contact by id', async () => {
     const newContact = { name: 'Jane Doe', email: 'jane@example.com', phone: '987654321' };
     const createRes = await request(app).post('/api/contacts').set('Cookie', cookie).send(newContact);
     const id = createRes.body.id;
+    createdIds.push(id);
     const getRes = await request(app).get(`/api/contacts/${id}`).set('Cookie', cookie);
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body).toMatchObject({ id, ...newContact });

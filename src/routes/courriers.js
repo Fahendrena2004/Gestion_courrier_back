@@ -1,27 +1,28 @@
-// src/routes/courriers.js
 const express = require('express');
 const router = express.Router();
 const courrierController = require('../controllers/courrierController');
 const authenticate = require('../middleware/auth');
+const upload = require('../middleware/upload');
+
+/**
+ * @swagger
+ * tags:
+ *   name: Courriers
+ *   description: Gestion des courriers
+ */
 
 /**
  * @swagger
  * /api/courriers:
  *   get:
- *     summary: Retrieve all courriers
- *     tags:
- *       - Courriers
+ *     summary: Récupérer tous les courriers
+ *     tags: [Courriers]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of courriers
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Courrier'
+ *         description: Liste des courriers
  */
 router.get('/', authenticate, courrierController.getAll);
 
@@ -29,27 +30,20 @@ router.get('/', authenticate, courrierController.getAll);
  * @swagger
  * /api/courriers/{id}:
  *   get:
- *     summary: Retrieve a courrier by ID
- *     tags:
- *       - Courriers
+ *     summary: Récupérer un courrier par son ID
+ *     tags: [Courriers]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Courrier ID
  *     responses:
  *       200:
- *         description: Courrier object
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Courrier'
- *       404:
- *         description: Courrier not found
+ *         description: Détails du courrier
  */
 router.get('/:id', authenticate, courrierController.getById);
 
@@ -57,34 +51,39 @@ router.get('/:id', authenticate, courrierController.getById);
  * @swagger
  * /api/courriers:
  *   post:
- *     summary: Create a new courrier
- *     tags:
- *       - Courriers
+ *     summary: Créer un nouveau courrier (avec fichier joint optionnel)
+ *     tags: [Courriers]
+ *     security:
+ *       - cookieAuth: []
+ *       - bearerAuth: []
  *     requestBody:
- *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Courrier'
+ *             type: object
+ *             properties:
+ *               reference:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *               fichier_joint:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
- *         description: Courrier created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Courrier'
+ *         description: Courrier créé
  */
-router.post('/', authenticate, courrierController.create);
+router.post('/', authenticate, upload.single('fichier_joint'), courrierController.create);
 
 /**
  * @swagger
  * /api/courriers/{id}:
  *   put:
- *     summary: Update a courrier
- *     tags:
- *       - Courriers
+ *     summary: Mettre à jour un courrier existant
+ *     tags: [Courriers]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -92,26 +91,25 @@ router.post('/', authenticate, courrierController.create);
  *         schema:
  *           type: integer
  *     requestBody:
- *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Courrier'
+ *             type: object
  *     responses:
  *       200:
- *         description: Courrier updated
+ *         description: Courrier mis à jour
  */
-router.put('/:id', authenticate, courrierController.update);
+router.put('/:id', authenticate, upload.single('fichier_joint'), courrierController.update);
 
 /**
  * @swagger
  * /api/courriers/{id}:
  *   delete:
- *     summary: Delete a courrier
- *     tags:
- *       - Courriers
+ *     summary: Supprimer un courrier
+ *     tags: [Courriers]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -120,7 +118,7 @@ router.put('/:id', authenticate, courrierController.update);
  *           type: integer
  *     responses:
  *       200:
- *         description: Courrier deleted
+ *         description: Courrier supprimé
  */
 router.delete('/:id', authenticate, courrierController.delete);
 

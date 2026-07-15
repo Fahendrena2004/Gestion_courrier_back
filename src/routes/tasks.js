@@ -13,6 +13,7 @@ const authenticate = require('../middleware/auth');
  *       - Tasks
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of tasks
@@ -34,6 +35,7 @@ router.get('/', authenticate, taskController.getAll);
  *       - Tasks
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -85,6 +87,7 @@ router.post('/', authenticate, taskController.create);
  *       - Tasks
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -112,6 +115,7 @@ router.put('/:id', authenticate, taskController.update);
  *       - Tasks
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

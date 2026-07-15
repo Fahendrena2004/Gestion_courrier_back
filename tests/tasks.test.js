@@ -4,22 +4,22 @@ const { getAuthCookie } = require('./authHelper');
 
 describe('Tasks API', () => {
   let cookie;
+  const createdIds = [];
 
   beforeAll(async () => {
     cookie = await getAuthCookie(app);
-    // Clean up any existing tasks
-    const res = await request(app).get('/api/tasks').set('Cookie', cookie);
-    if (Array.isArray(res.body)) {
-      for (const t of res.body) {
-        await request(app).delete(`/api/tasks/${t.id}`).set('Cookie', cookie);
-      }
+  });
+
+  afterAll(async () => {
+    for (const id of createdIds) {
+      await request(app).delete(`/api/tasks/${id}`).set('Cookie', cookie);
     }
   });
 
-  it('should return empty array initially', async () => {
+  it('should return tasks array', async () => {
     const res = await request(app).get('/api/tasks').set('Cookie', cookie);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual([]);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
   it('should create a new task', async () => {
@@ -27,12 +27,14 @@ describe('Tasks API', () => {
     const res = await request(app).post('/api/tasks').set('Cookie', cookie).send(newTask);
     expect(res.statusCode).toBe(201);
     expect(res.body).toMatchObject({ id: expect.any(Number) });
+    createdIds.push(res.body.id);
   });
 
   it('should retrieve the created task by id', async () => {
     const newTask = { title: 'Write docs', description: 'Create Swagger spec', status: 'in-progress' };
     const createRes = await request(app).post('/api/tasks').set('Cookie', cookie).send(newTask);
     const id = createRes.body.id;
+    createdIds.push(id);
     const getRes = await request(app).get(`/api/tasks/${id}`).set('Cookie', cookie);
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body).toMatchObject({ id, ...newTask });

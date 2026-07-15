@@ -8,7 +8,7 @@ const ServiceService = require('../src/services/serviceService');
 const TaskService = require('../src/services/taskService');
 const CourrierService = require('../src/services/courrierService');
 const ArchiveService = require('../src/services/archiveService');
-// UserService not needed for seed
+const UserService = require('../src/services/userService');
 
 const TRUNCATE = true; // set false if you do not want to wipe tables
 
@@ -29,6 +29,10 @@ async function seed() {
   const task = new TaskService();
   const courrier = new CourrierService();
   const archive = new ArchiveService();
+  const user = new UserService();
+
+  // Users
+  await user.create({ username: 'admin', email: 'admin@example.com', password: 'password', role: 'admin' });
 
   // Contacts
   await contact.create({ name: 'Alice', email: 'alice@example.com', phone: '111111111' });
@@ -43,12 +47,12 @@ async function seed() {
   await task.create({ title: 'Write docs', description: 'Create Swagger spec', status: 'in_progress' });
 
   // Courriers – use column names defined in schema (sender, recipient)
-  await courrier.create({ subject: 'Welcome', sender: 'Alice', recipient: 'Bob' });
-  await courrier.create({ subject: 'Reminder', sender: 'Bob', recipient: 'Alice' });
+  const c1 = await courrier.create({ type: 'arrive', subject: 'Welcome', sender_id: 1, recipient_id: 2 });
+  const c2 = await courrier.create({ type: 'depart', subject: 'Reminder', sender_id: 2, recipient_id: 1 });
 
   // Archives
-  await archive.create({ name: 'Project Docs', description: 'PDF of project documentation' });
-  await archive.create({ name: 'Specs', description: 'Technical specifications' });
+  await archive.create({ courrier_id: c1.id, box_number: 'B1', shelf_location: 'S1', notes: 'Project Docs' });
+  await archive.create({ courrier_id: c2.id, box_number: 'B2', shelf_location: 'S2', notes: 'Specs' });
 
   console.log('✅ Seed completed.');
 }

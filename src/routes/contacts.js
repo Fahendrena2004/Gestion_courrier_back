@@ -13,6 +13,7 @@ const authenticate = require('../middleware/auth');
  *       - Contacts
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of contacts

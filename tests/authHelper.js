@@ -8,14 +8,14 @@ async function getAuthCookie(app) {
 
   // Clean up user if exists to ensure clean state or just try logging in
   try {
-    const [rows] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+    const [rows] = await db.query('SELECT id_utilis FROM utilisateurs WHERE email_utilis = ?', [email]);
     if (rows.length === 0) {
       await request(app)
         .post('/api/auth/register')
         .send({ username, email, password });
     }
   } catch (err) {
-    // Silently continue
+    console.error("Auth helper setup error:", err);
   }
 
   const loginRes = await request(app)

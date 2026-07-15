@@ -13,6 +13,7 @@ const serviceSchema = require('../validation/serviceSchema');
  *       - Services
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of services
@@ -34,6 +35,7 @@ router.get('/', authenticate, serviceController.getAll);
  *       - Services
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -85,6 +87,7 @@ router.post('/', authenticate, validate(serviceSchema), serviceController.create
  *       - Services
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -112,6 +115,7 @@ router.put('/:id', authenticate, validate(serviceSchema), serviceController.upda
  *       - Services
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

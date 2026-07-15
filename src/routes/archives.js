@@ -17,6 +17,7 @@ const paginate = require('../middleware/pagination');
  *       - Archives
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of archives
@@ -38,6 +39,7 @@ router.get('/', authenticate, paginate, archiveController.getAll);
  *       - Archives
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -78,7 +80,19 @@ router.get('/:id', authenticate, archiveController.getById);
  *             schema:
  *               $ref: '#/components/schemas/Archive'
  */
-router.post('/', authenticate, upload.single('file'), validate(archiveSchema), archiveController.create);
+router.post(
+  '/',
+  authenticate,
+  upload.single('file'),
+  (req, res, next) => {
+    if (req.file) {
+      req.body.path = req.file.path;
+    }
+    next();
+  },
+  validate(archiveSchema),
+  archiveController.create
+);
 
 /**
  * @swagger
@@ -89,6 +103,7 @@ router.post('/', authenticate, upload.single('file'), validate(archiveSchema), a
  *       - Archives
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -116,6 +131,7 @@ router.put('/:id', authenticate, validate(archiveSchema), archiveController.upda
  *       - Archives
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

@@ -7,6 +7,10 @@
  *       type: apiKey
  *       in: cookie
  *       name: token
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     User:
  *       type: object

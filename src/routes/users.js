@@ -1,122 +1,86 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
-const bcrypt = require('bcryptjs');
+const userController = require('../controllers/userController');
 const authenticate = require('../middleware/auth');
 
-// Get all users (protected)
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: Gestion des utilisateurs et administrateurs
+ */
+
 /**
  * @swagger
  * /api/users:
  *   get:
- *     summary: Retrieve all users (protected)
- *     tags:
- *       - Users
+ *     summary: Récupérer tous les utilisateurs
+ *     tags: [Users]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
+ *         description: Liste des utilisateurs
  */
-router.get('/', authenticate, async (req, res, next) => {
-  try {
-    const [rows] = await db.query('SELECT id, username, email FROM users');
-    res.json(rows);
-  } catch (err) {
-    next(err);
-  }
-});
+router.get('/', authenticate, userController.getAll);
 
-// Get user by id (protected)
 /**
  * @swagger
  * /api/users/{id}:
  *   get:
- *     summary: Retrieve a user by ID (protected)
- *     tags:
- *       - Users
+ *     summary: Récupérer un utilisateur par son ID
+ *     tags: [Users]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User ID
  *     responses:
  *       200:
- *         description: User object
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       404:
- *         description: User not found
+ *         description: Détails de l'utilisateur
  */
-router.get('/:id', authenticate, async (req, res, next) => {
-  const { id } = req.params;
-  try {
-    const [rows] = await db.query('SELECT id, username, email FROM users WHERE id = ?', [id]);
-    if (rows.length === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    res.json(rows[0]);
-  } catch (err) {
-    next(err);
-  }
-});
+router.get('/:id', authenticate, userController.getById);
 
-// Create user (public - registration)
 /**
  * @swagger
  * /api/users:
  *   post:
- *     summary: Register a new user (public)
- *     tags:
- *       - Users
+ *     summary: Créer un nouvel utilisateur (Admin / Inscription)
+ *     tags: [Users]
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/NewUser'
+ *             type: object
+ *             properties:
+ *               nom_utilis:
+ *                 type: string
+ *               email_utilis:
+ *                 type: string
+ *               mot_de_passe:
+ *                 type: string
+ *               role:
+ *                 type: string
  *     responses:
  *       201:
- *         description: Created user
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       400:
- *         description: Validation error
+ *         description: Utilisateur créé
  */
-router.post('/', async (req, res, next) => {
-  const { username, email, password } = req.body;
-  if (!username || !email || !password) return res.status(400).json({ error: 'Tous les champs sont obligatoires' });
-  try {
-    const hash = await bcrypt.hash(password, 10);
-    const [result] = await db.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash]);
-    res.status(201).json({ id: result.insertId, username, email });
-  } catch (err) {
-    next(err);
-  }
-});
+router.post('/', userController.create);
 
-// Update user (protected)
 /**
  * @swagger
  * /api/users/{id}:
  *   put:
- *     summary: Update a user (protected)
- *     tags:
- *       - Users
+ *     summary: Mettre à jour un utilisateur existant
+ *     tags: [Users]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -124,46 +88,25 @@ router.post('/', async (req, res, next) => {
  *         schema:
  *           type: integer
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateUser'
+ *             type: object
  *     responses:
  *       200:
- *         description: User updated
- *       400:
- *         description: Validation error
+ *         description: Utilisateur mis à jour
  */
-router.put('/:id', authenticate, async (req, res, next) => {
-  const { id } = req.params;
-  const { username, email, password } = req.body;
-  if (!username && !email && !password) return res.status(400).json({ error: 'Au moins un champ est requis' });
-  try {
-    const fields = [];
-    const values = [];
-    if (username) { fields.push('username = ?'); values.push(username); }
-    if (email) { fields.push('email = ?'); values.push(email); }
-    if (password) { const hash = await bcrypt.hash(password, 10); fields.push('password = ?'); values.push(hash); }
-    values.push(id);
-    const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
-    await db.query(sql, values);
-    res.json({ message: 'User updated' });
-  } catch (err) {
-    next(err);
-  }
-});
+router.put('/:id', authenticate, userController.update);
 
-// Delete user (protected)
 /**
  * @swagger
  * /api/users/{id}:
  *   delete:
- *     summary: Delete a user (protected)
- *     tags:
- *       - Users
+ *     summary: Supprimer un utilisateur
+ *     tags: [Users]
  *     security:
  *       - cookieAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -172,16 +115,8 @@ router.put('/:id', authenticate, async (req, res, next) => {
  *           type: integer
  *     responses:
  *       200:
- *         description: User deleted
+ *         description: Utilisateur supprimé
  */
-router.delete('/:id', authenticate, async (req, res, next) => {
-  const { id } = req.params;
-  try {
-    await db.query('DELETE FROM users WHERE id = ?', [id]);
-    res.json({ message: 'User deleted' });
-  } catch (err) {
-    next(err);
-  }
-});
+router.delete('/:id', authenticate, userController.delete);
 
 module.exports = router;

@@ -23,7 +23,11 @@ exports.getById = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
     try {
-        const result = await courrierService.create(req.body);
+        const body = { ...req.body };
+        if (req.file) {
+            body.file_path = req.file.filename;
+        }
+        const result = await courrierService.create(body);
         res.status(201).json(result);
     } catch (err) {
         next(err);
@@ -32,7 +36,11 @@ exports.create = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
     try {
-        const result = await courrierService.update(req.params.id, req.body);
+        const body = { ...req.body };
+        if (req.file) {
+            body.file_path = req.file.filename;
+        }
+        const result = await courrierService.update(req.params.id, body);
         res.json(result);
     } catch (err) {
         next(err);

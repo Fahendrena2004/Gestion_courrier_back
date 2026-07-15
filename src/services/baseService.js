@@ -11,10 +11,9 @@ class BaseService {
 
   /**
    * Retrieve all rows, optionally with pagination.
-   * @param {object} options - { limit, offset }
    */
   async getAll(options = {}) {
-    let query = `SELECT * FROM ${this.table}`;
+    let query = `SELECT * FROM ${this.table} WHERE deleted_at IS NULL`;
     const values = [];
     if (options.limit) {
       query += ` LIMIT ? OFFSET ?`;
@@ -25,7 +24,7 @@ class BaseService {
   }
 
   async getById(id) {
-    const [rows] = await db.query(`SELECT * FROM ${this.table} WHERE id = ?`, [id]);
+    const [rows] = await db.query(`SELECT * FROM ${this.table} WHERE id = ? AND deleted_at IS NULL`, [id]);
     return rows[0];
   }
 
@@ -50,11 +49,11 @@ class BaseService {
     return { affectedRows: result.affectedRows };
   }
 
+  // Implement soft delete
   async delete(id) {
-    const [result] = await db.query(`DELETE FROM ${this.table} WHERE id = ?`, [id]);
+    const [result] = await db.query(`UPDATE ${this.table} SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, [id]);
     return { affectedRows: result.affectedRows };
   }
 }
 
 module.exports = BaseService;
-

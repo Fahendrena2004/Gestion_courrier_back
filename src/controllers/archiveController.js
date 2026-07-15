@@ -1,50 +1,34 @@
 const ArchiveService = require('../services/archiveService');
 const archiveService = new ArchiveService();
 
-// GET /api/archives
 exports.getAll = async (req, res, next) => {
   try {
     const data = await archiveService.getAll(req.pagination);
-    // Map description -> path for each archive
-    const mapped = data.map(item => ({
-      ...item,
-      path: item.description,
-      description: undefined
-    }));
-    res.json(mapped);
+    res.json(data);
   } catch (err) {
     next(err);
   }
 };
 
-// GET /api/archives/:id
 exports.getById = async (req, res, next) => {
   try {
     const data = await archiveService.getById(req.params.id);
     if (!data) return res.status(404).json({ error: 'Non trouvé' });
-    // Map description -> path
-    const mapped = { ...data, path: data.description };
-    delete mapped.description;
-    res.json(mapped);
+    res.json(data);
   } catch (err) {
     next(err);
   }
 };
 
-// POST /api/archives
 exports.create = async (req, res, next) => {
   try {
-    // Map incoming payload { name, path } to DB fields { name, description }
-    const { name, path } = req.body;
-    const payload = { name, description: path };
-    const result = await archiveService.create(payload);
+    const result = await archiveService.create(req.body);
     res.status(201).json(result);
   } catch (err) {
     next(err);
   }
 };
 
-// PUT /api/archives/:id
 exports.update = async (req, res, next) => {
   try {
     const result = await archiveService.update(req.params.id, req.body);
@@ -54,7 +38,6 @@ exports.update = async (req, res, next) => {
   }
 };
 
-// DELETE /api/archives/:id
 exports.delete = async (req, res, next) => {
   try {
     const result = await archiveService.delete(req.params.id);

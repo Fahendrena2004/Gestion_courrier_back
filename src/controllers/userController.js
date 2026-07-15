@@ -21,5 +21,32 @@ exports.getById = async (req, res, next) => {
   }
 };
 
-/* Additional methods for registration, password reset, etc. can be added
-   here, delegating to the userService implementation. */
+exports.create = async (req, res, next) => {
+  try {
+    const result = await userService.create(req.body);
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.update = async (req, res, next) => {
+  try {
+    const result = await userService.update(req.params.id, req.body);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.delete = async (req, res, next) => {
+  try {
+    const result = await userService.delete(req.params.id);
+    res.json(result);
+  } catch (err) {
+    if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.status(400).json({ error: "Impossible de supprimer cet utilisateur car il est lié à des courriers ou des tâches existantes." });
+    }
+    next(err);
+  }
+};

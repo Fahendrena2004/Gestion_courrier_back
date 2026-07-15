@@ -38,6 +38,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware
 app.use(helmet());
+app.use(cors({ origin: true, credentials: true }));
+
 // Apply rate limiting: max 100 requests per 15 minutes per IP
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -46,7 +48,6 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
-app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));

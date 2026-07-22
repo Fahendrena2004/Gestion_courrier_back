@@ -65,9 +65,28 @@ app.use('/api/contacts', contactRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/tasks', taskRoutes);
 
+app.get('/api/health', async (req, res) => {
+  try {
+    const db = require('./db');
+    await db.query('SELECT 1');
+    res.json({ status: 'ok', database: 'connected' });
+  } catch (err) {
+    res.status(503).json({
+      status: 'error',
+      database: 'disconnected',
+      error: `Base de données indisponible sur ${process.env.DB_HOST || '127.0.0.1'}:${process.env.DB_PORT || 3306}`,
+    });
+  }
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err);
+  if (err.code === 'ECONNREFUSED' || err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ER_ACCESS_DENIED_ERROR') {
+    return res.status(503).json({
+      error: `Base de données indisponible sur ${process.env.DB_HOST || '127.0.0.1'}:${process.env.DB_PORT || 3306}. Vérifiez que MySQL/MariaDB est démarré et que .env est correct.`,
+    });
+  }
   res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
 });
 

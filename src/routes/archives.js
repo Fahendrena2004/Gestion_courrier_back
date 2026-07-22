@@ -120,7 +120,19 @@ router.post(
  *       200:
  *         description: Archive updated
  */
-router.put('/:id', authenticate, validate(archiveSchema), archiveController.update);
+router.put(
+  '/:id',
+  authenticate,
+  upload.single('file'),
+  (req, res, next) => {
+    if (req.file) {
+      req.body.path = req.file.path;
+    }
+    next();
+  },
+  validate(archiveSchema),
+  archiveController.update
+);
 
 /**
  * @swagger

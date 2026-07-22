@@ -5,6 +5,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- Drop tables if they exist to recreate them with the new schema
 DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS courrier_documents;
 DROP TABLE IF EXISTS archives;
 DROP TABLE IF EXISTS tasks;
 DROP TABLE IF EXISTS comments;
@@ -79,6 +80,24 @@ CREATE TABLE IF NOT EXISTS courriers (
   FOREIGN KEY (recipient_id) REFERENCES contacts(id) ON DELETE SET NULL,
   FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE SET NULL,
   FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS courrier_documents (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  courrier_id INT UNSIGNED NOT NULL,
+  file_path VARCHAR(255) NOT NULL,
+  original_name VARCHAR(500),
+  mime_type VARCHAR(100) NOT NULL,
+  size_bytes INT UNSIGNED NOT NULL,
+  ocr_text LONGTEXT,
+  ocr_metadata JSON,
+  created_by INT UNSIGNED,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL,
+  FULLTEXT KEY idx_courrier_documents_ocr_text (ocr_text),
+  FOREIGN KEY (courrier_id) REFERENCES courriers(id) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 

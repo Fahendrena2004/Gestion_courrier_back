@@ -28,6 +28,28 @@ router.get('/', authenticate, courrierController.getAll);
 
 /**
  * @swagger
+ * /api/courriers/ready-to-archive:
+ *   get:
+ *     summary: Récupérer les courriers éligibles à l'archivage (toutes les tâches terminées)
+ *     tags: [Courriers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des courriers prêts à être archivés
+ */
+router.get('/ready-to-archive', authenticate, courrierController.readyToArchive);
+
+router.post('/scan', authenticate, upload.array('documents', 50), courrierController.scan);
+router.post('/upload', authenticate, upload.array('documents', 50), courrierController.uploadScan);
+router.post('/ocr', authenticate, courrierController.ocr);
+router.post('/:id/ocr', authenticate, courrierController.ocr);
+router.get('/:id/pdf', authenticate, courrierController.viewPdf);
+router.get('/:id/download', authenticate, courrierController.downloadPdf);
+router.delete('/:id/pdf', authenticate, courrierController.deletePdf);
+
+/**
+ * @swagger
  * /api/courriers/{id}:
  *   get:
  *     summary: Récupérer un courrier par son ID
@@ -73,7 +95,7 @@ router.get('/:id', authenticate, courrierController.getById);
  *       201:
  *         description: Courrier créé
  */
-router.post('/', authenticate, upload.single('fichier_joint'), courrierController.create);
+router.post('/', authenticate, upload.fields([{ name: 'documents', maxCount: 50 }, { name: 'fichier_joint', maxCount: 1 }]), courrierController.create);
 
 /**
  * @swagger
@@ -99,7 +121,7 @@ router.post('/', authenticate, upload.single('fichier_joint'), courrierControlle
  *       200:
  *         description: Courrier mis à jour
  */
-router.put('/:id', authenticate, upload.single('fichier_joint'), courrierController.update);
+router.put('/:id', authenticate, upload.fields([{ name: 'documents', maxCount: 50 }, { name: 'fichier_joint', maxCount: 1 }]), courrierController.update);
 
 /**
  * @swagger

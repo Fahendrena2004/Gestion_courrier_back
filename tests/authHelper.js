@@ -8,7 +8,7 @@ async function getAuthCookie(app) {
 
   // Clean up user if exists to ensure clean state or just try logging in
   try {
-    const [rows] = await db.query('SELECT id_utilis FROM utilisateurs WHERE email_utilis = ?', [email]);
+    const [rows] = await db.query('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL', [email]);
     if (rows.length === 0) {
       await request(app)
         .post('/api/auth/register')
